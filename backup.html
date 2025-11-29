@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anshuman Parmar - CV</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #000000;
+            --text-color: #333333;
+            --background-color: #ffffff;
+            --section-bg: #f0f0f0;
+            --border-color: #dddddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .header-left {
+            flex-grow: 1;
+        }
+
+        .header-right {
+            text-align: right;
+            padding-left: 30px;
+        }
+
+        .name {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        .contact-info {
+            margin-bottom: 25px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin: 8px 0;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .contact-item i {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .contact-text {
+            font-style: italic;
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .social-link {
+            text-decoration: none;
+            color: #444;
+            font-weight: 600;
+            font-size: 0.95em;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link i {
+            font-size: 1em;
+        }
+
+        .social-link:hover {
+            color: #000;
+            transform: translateY(-1px);
+        }
+
+        .social-link::after {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 70%;
+            background-color: #ddd;
+        }
+
+        .social-link:last-child::after {
+            display: none;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            background-color: var(--section-bg);
+            margin-bottom: 20px;
+            font-family: 'Raleway', sans-serif;
+            color: #444;
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 0 12px;
+        }
+
+        .skill-item {
+            padding: 5px 0;
+            font-size: 0.95em;
+            color: #444;
+        }
+
+        /* Experience Section */
+        .experience-item {
+            margin-bottom: 25px;
+            padding: 0 12px;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .job-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .company {
+            font-style: italic;
+            color: #666;
+        }
+
+        .date {
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        .job-description ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .job-description li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        /* Download Button */
+        .download-btn {
+            display: block;
+            width: 200px;
+            margin: 40px auto 0;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: #333;
+        }
+
+        @media print {
+            .download-btn {
+                display: none;
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            @page {
+                margin: 20mm;
+                size: auto;
+                margin-header: 0mm;
+                margin-footer: 0mm;
+            }
+
+            html {
+                height: 100%;
+            }
+
+            body {
+                height: 100%;
+                position: relative;
+            }
+
+            @page {
+                size: auto;
+                margin: 20mm;
+            }
+
+            @page :first {
+                margin-top: 0;
+            }
+
+            @page {
+                size: auto;
+                margin: 20mm;
+                marks: none;
+            }
+
+            @-moz-document url-prefix() {
+                @page {
+                    margin: 20mm;
+                    size: auto;
+                }
+                html {
+                    height: 100%;
+                }
+                body::after {
+                    content: none !important;
+                }
+            }
+        }
+
+        /* Update the Skills section CSS */
+        .skills-section {
+            padding: 0 12px;
+        }
+
+        .skills-category {
+            margin-bottom: 15px;
+        }
+
+        .skills-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-title i {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .skills-content {
+            padding-left: 25px;
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="name">Anshuman Parmar</h1>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/anshuman-parmar-757666219/" class="social-link">
+                        <i class="fab fa-linkedin"></i>
+                        LinkedIn
+                    </a>
+                    <a href="https://github.com/anshumansp" class="social-link">
+                        <i class="fab fa-github"></i>
+                        GitHub
+                    </a>
+                    <a href="https://anshumansp.netlify.app" class="social-link">
+                        <i class="fas fa-globe"></i>
+                        Website
+                    </a>
+                    <a href="https://www.instagram.com/anshuman_.__/" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                        Instagram
+                    </a>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="contact-text">Gwalior, India</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span class="contact-text">+917477028192</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span class="contact-text">anshumansp16@gmail.com</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Professional Summary -->
+        <section class="section">
+            <h2 class="section-title">PROFESSIONAL SUMMARY</h2>
+            <p style="padding: 0 12px;"><b>Full-Stack Developer, AI & Automations Engineer </b>with more than 2 years of
+                specializing in delivering industry-level projects that
+                experience in full-stack development, AI and marketing,
+                enhance user engagement and streamline processes.
+                Successfully completed over 10 full-stack
+                development projects as a freelancer, consistently
+                receiving positive feedback from clients on impactful
+                designs and efficient solutions. Proven ability to
+                communicate effectively with both internal and
+                external stakeholders and adapt to team dynamics or
+                work independently to achieve project goals. Skilled
+                in HTML, CSS, JavaScript, React, and leveraging
+                advanced frameworks to drive results.
+            </p>
+        </section>
+
+        <!-- Skills -->
+        <section class="section">
+            <h2 class="section-title">SKILLS</h2>
+            <div class="skills-section">
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-code"></i>
+                        Programming Languages & Technologies
+                    </div>
+                    <div class="skills-content">
+                        HTML, CSS, JavaScript, TypeScript, Python, React.js, Node.js, Next.js, Redux, Git, REST APIs
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-tools"></i>
+                        Tools & Frameworks
+                    </div>
+                    <div class="skills-content">
+                        LangChain, Agentic Systems, Graph RAG, Docker, MongoDB, Express.js, PostgreSQL, Firebase,
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-cloud"></i>
+                        Cloud & Platforms
+                    </div>
+                    <div class="skills-content">
+                        Google Cloud, AWS, Vercel, Netlify, Render, Railway </div>
+                </div>
+
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-robot"></i>
+                        AI & Automation
+                    </div>
+                    <div class="skills-content">
+                        Retrieval Augmented Generation (RAG), Fine tuning LLMs, Vector Embeddings, Chrome Extensions,
+                        Automation Frameworks, OpenAI API, Hugging Face
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-bullhorn"></i>
+                        Digital Marketing & SEO
+                    </div>
+                    <div class="skills-content">
+                        SEO Optimization, Content Strategy, Keyword Research, Google Analytics, SEMrush, CRM Platforms,
+                        Social Media Marketing, Email Marketing
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <div class="category-title">
+                        <i class="fas fa-users"></i>
+                        Soft Skills
+                    </div>
+                    <div class="skills-content">
+                        Problem Solving, Team Leadership, Project Management, Communication, Adaptability, Critical
+                        Thinking, Collaboration, Client Relations
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience -->
+        <section class="section">
+            <h2 class="section-title">EXPERIENCE</h2>
+            <!-- Current Job -->
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">Full-Stack Web Developer</h3>
+                        <p class="company">Sazag Infotech Private Limited</p>
+                    </div>
+                    <span class="date">April 2024 - Current</span>
+                </div>
+                <div class="job-description">
+                    <ul>
+                        <li>Implemented agentic systems and RAG (Retrieval-Augmented Generation)
+                            solutions for AI-powered applications</li>
+                        <li>Designed and optimized vector databases to handle embeddings for improved performance in AI
+                            workflows</li>
+                        <li>Developed and deployed AI-powered tools, chrome extensions, and automation frameworks to
+                            streamline client
+                            operations</li>
+                        <li>Engineered robust back-end solutions using Python and integrated Google Cloud and AWS for
+                            scalable
+                            deployments</li>
+                        <li>Built immersive 3D visualizations using Three.js and enhanced web interactivity through
+                            advanced
+                            technologies</li>
+                        <li>Leveraged containerization tools like Docker to ensure consistent and efficient application
+                            delivery</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">Freelance Web Developer</h3>
+                        <p class="company">New IT Nest Limited</p>
+                    </div>
+                    <span class="date">September 2023 - March 2024</span>
+                </div>
+                <div class="job-description">
+                    <ul>
+                        <li>Delivered end-to-end custom web solutions, focusing on user-centric design and accessibility
+                        </li>
+                        <li>Integrated advanced back-end systems and APIs for seamless client-side functionality</li>
+                        <li>Successfully migrated applications to cloud platforms ensuring enhanced scalability and
+                            performance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">SEO Specialist & Content Writer</h3>
+                        <p class="company">Creative Creations</p>
+                    </div>
+                    <span class="date">January 2023 - August 2023</span>
+                </div>
+                <div class="job-description">
+                    <ul>
+                        <li>Conducted comprehensive keyword research to enhance search engine visibility and drive
+                            organic traffic
+                            growth</li>
+                        <li>Developed and optimized high-impact content across blogs, websites, and marketing collateral
+                        </li>
+                        <li>Employed SEO analytics tools to track performance and iteratively refine content strategies
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">Freelance Frontend Developer</h3>
+                        <p class="company">Freelance</p>
+                    </div>
+                    <span class="date">August 2022 - August 2023</span>
+                </div>
+                <div class="job-description">
+                    <ul>
+                        <li>Developed and delivered custom web solutions with a focus on user-friendly design and
+                            accessibility</li>
+                        <li>Integrated advanced back-end systems and APIs, ensuring smooth and efficient client-side
+                            functionality</li>
+                        <li>Led successful application migrations to cloud platforms, enhancing scalability and overall
+                            performance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">Freelance Content Writer</h3>
+                        <p class="company">Freelancing</p>
+                    </div>
+                    <span class="date">March 2022 - August 2022</span>
+                </div>
+                <div class="job-description">
+                    <ul>
+                        <li>Managed social media content strategy, wrote articles boosting brand presence across
+                            platforms</li>
+                        <li>Kept consistent brand voice across all digital platforms</li>
+                        <li>Managed multiple projects simultaneously while adhering to strict deadlines without
+                            sacrificing quality</li>
+                        <li>Created user manuals and help guides that simplified complex technical information</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education -->
+        <section class="section">
+            <h2 class="section-title">EDUCATION</h2>
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3 class="job-title">Bachelor of Business Administration - Finance</h3>
+                        <p class="company">Vikrant Group of Institutions, Gwalior, India</p>
+                        </div>
+                        <span class="date">2021-2024</span>
+                        </div>
+                        </div>
+                        <div class="experience-item">
+                            <div class="job-header">
+                                <div>
+                                    <h3 class="job-title">Class XII</h3>
+                                    <p class="company">Delhi Public Academy, Gwalior, India</p>
+                                </div>
+                                <span class="date">2020-2021</span>
+                            </div>
+                        </div>
+                        <div class="experience-item">
+                            <div class="job-header">
+                                <div>
+                                    <h3 class="job-title">Class X</h3>
+                                    <p class="company">Delhi Public Academy, Gwalior, India</p>
+                                </div>
+                            <span class="date">2018-2019</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Languages -->
+        <section class="section">
+            <h2 class="section-title">LANGUAGES</h2>
+            <div class="skills-grid">
+                <div class="skill-item">English - Advanced</div>
+                <div class="skill-item">Hindi - Proficient</div>
+            </div>
+        </section>
+
+        <!-- Download Button -->
+        <a href="#" class="download-btn" onclick="window.print()">Download PDF</a>
+    </div>
+</body>
+
+</html>
