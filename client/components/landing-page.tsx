@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ArrowRight, Check, Download, FileText, Sparkles, Zap } from "lucide-react";
 import { templates, TemplateMetadata } from "@/lib/template-config";
 import dynamic from "next/dynamic";
+import { trackTemplateSelect, trackButtonClick } from "@/lib/gtag";
 
 // Dynamic import to avoid SSR issues with PDF.js
 const TemplatePreviewModal = dynamic(
@@ -18,6 +19,9 @@ export function LandingPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handlePreview = (template: TemplateMetadata) => {
+    // Track template selection
+    trackTemplateSelect(template.name, template.category);
+
     setSelectedTemplate(template);
     setIsPreviewOpen(true);
   };

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Download, FileText, Home, Loader2 } from "lucide-react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { trackPurchase, trackResumeDownload, trackButtonClick } from "@/lib/gtag";
 
 function PaymentSuccessContent() {
     const router = useRouter();
@@ -17,6 +18,13 @@ function PaymentSuccessContent() {
     const downloadToken = searchParams.get("token");
     const templateId = searchParams.get("templateId");
     const paymentId = searchParams.get("paymentId");
+
+    // Track successful purchase on page load
+    useEffect(() => {
+        if (paymentId) {
+            trackPurchase(paymentId, 49, "INR");
+        }
+    }, [paymentId]);
 
     // Countdown timer
     useEffect(() => {
@@ -82,6 +90,9 @@ function PaymentSuccessContent() {
             document.body.appendChild(link);
             link.click();
             link.remove();
+
+            // Track successful resume download
+            trackResumeDownload(templateId, "pdf");
 
             toast.success("Resume downloaded successfully!");
         } catch (error) {
@@ -178,6 +189,9 @@ function PaymentSuccessContent() {
             link.click();
             link.remove();
 
+            // Track receipt download
+            trackButtonClick("Download Receipt", "Payment Success");
+
             toast.success("Receipt downloaded successfully!");
         } catch (error) {
             console.error("Error downloading receipt:", error);
@@ -188,6 +202,7 @@ function PaymentSuccessContent() {
     };
 
     const handleGoHome = () => {
+        trackButtonClick("Return Home", "Payment Success");
         setRedirecting(true);
         router.push("/");
     };

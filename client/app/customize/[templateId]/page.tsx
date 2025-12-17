@@ -22,6 +22,7 @@ import { WorkExperience, Education, Project, Certification } from "@/lib/types";
 import { LinkedInImport } from "@/components/linkedin-import";
 import { PDFImport } from "@/components/pdf-import";
 import toast, { Toaster } from 'react-hot-toast';
+import { trackResumeCreationStarted, trackResumeCompleted } from "@/lib/gtag";
 
 interface CustomizePageProps {
     params: Promise<{ templateId: string }>;
@@ -85,7 +86,11 @@ export default function CustomizePage({ params }: CustomizePageProps) {
     const [currentStep, setCurrentStep] = useState(1);
 
     useEffect(() => {
-        params.then((p) => setTemplateId(p.templateId));
+        params.then((p) => {
+            setTemplateId(p.templateId);
+            // Track resume creation started
+            trackResumeCreationStarted(p.templateId);
+        });
     }, [params]);
 
     const template = templates.find((t) => t.id === templateId);
@@ -642,6 +647,19 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                 projectDescriptions: projects.filter(p => p.description).map(p => p.id)
             },
         });
+
+        // Track resume completion
+        const sectionsFilled = [
+            name && email, // Personal info
+            summary, // Summary
+            workExperiences.some(exp => exp.company && exp.role), // Work experience
+            educationList.some(edu => edu.degree && edu.institution), // Education
+            skillsText.trim(), // Skills
+            projects.length > 0, // Projects (optional)
+            certifications.length > 0 // Certifications (optional)
+        ].filter(Boolean).length;
+
+        trackResumeCompleted(templateId!, sectionsFilled);
 
         router.push(`/preview/${templateId}`);
     };
