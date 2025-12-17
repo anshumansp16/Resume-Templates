@@ -1,0 +1,159 @@
+{
+    "personalInfo": {
+        "name": "ANSHUMAN PARMAR",
+        "email": "anshumansp16@gmail.com",
+        "phone": "+91 747 702 8192",
+        "location": "Gwalior, India",
+        "github": "github.com/anshumansp16",
+        "linkedin": "linkedin.com/in/anshuman-parmar"
+    },
+    "summary": "Senior Full Stack Developer specializing in production-grade AI systems, browser automation platforms, and scalable web applications. Deep expertise in Generative AI (RAG, LLMs, Agentic AI), modern JavaScript frameworks, and Python backend development. Proven track record delivering enterprise solutions handling 10K+ concurrent users with 99.9% uptime.",
+    "workExperience": [
+        {
+            "id": "exp-1",
+            "company": "Thunder Marketing Corporation",
+            "role": "Senior Full Stack Developer",
+            "startDate": "April 2025",
+            "endDate": "Present",
+            "location": "Remote",
+            "achievements": [
+                "Architected enterprise-scale browser automation platform using Selenium & Playwright, processing 50K+ automated tasks daily with 99.9% reliability",
+                "Built production FastAPI microservices architecture handling 10K+ concurrent requests; reduced API response time by 40%",
+                "Engineered AI-powered automation systems integrating GPT-4, Claude, and custom LLMs; achieved 85% accuracy",
+                "Developed Next.js dashboards with real-time monitoring; implemented CI/CD pipelines reducing deployment time by 60%"
+            ]
+        },
+        {
+            "id": "exp-2",
+            "company": "Sazag Infotech Private Limited",
+            "role": "AI Engineer",
+            "startDate": "April 2024",
+            "endDate": "March 2025",
+            "location": "Hybrid",
+            "achievements": [
+                "Designed production-grade RAG systems improving query accuracy by 40% through vector database optimization",
+                "Built Chrome extensions and browser automation tools generating 30% cost savings",
+                "Developed scalable Python FastAPI backends integrated with AWS/GCP; achieved 99.5% deployment success rate"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "id": "edu-1",
+            "degree": "Bachelor of Business Administration (BBA) - Finance",
+            "institution": "Vikrant Group of Institutions",
+            "location": "Gwalior",
+            "startDate": "2021",
+            "endDate": "2024"
+        }
+    ],
+    "skills": [
+        {
+            "category": "AI & Automation",
+            "items": [
+                "RAG Systems",
+                "LangChain",
+                "LangGraph",
+                "OpenAI",
+                "Claude",
+                "Gemini",
+                "ChromaDB",
+                "Pinecone",
+                "Selenium",
+                "Playwright"
+            ]
+        },
+        {
+            "category": "Backend",
+            "items": [
+                "Python",
+                "FastAPI",
+                "Node.js",
+                "Express.js",
+                "REST APIs",
+                "GraphQL",
+                "WebSocket",
+                "Microservices Architecture"
+            ]
+        },
+        {
+            "category": "Frontend",
+            "items": [
+                "React.js",
+                "Next.js",
+                "TypeScript",
+                "JavaScript ES6+",
+                "Tailwind CSS",
+                "Redux",
+                "React Query",
+                "Three.js"
+            ]
+        },
+        {
+            "category": "Database",
+            "items": [
+                "PostgreSQL",
+                "MongoDB",
+                "Redis",
+                "Vector Databases",
+                "SQL Optimization"
+            ]
+        },
+        {
+            "category": "Cloud & DevOps",
+            "items": [
+                "AWS (EC2, Lambda, S3)",
+                "GCP",
+                "Docker",
+                "Kubernetes",
+                "CI/CD",
+                "GitHub Actions",
+                "Vercel"
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "id": "proj-1",
+            "name": "AI Automation Platform",
+            "description": "Built intelligent automation system processing 50K+ daily tasks with 99.9% reliability",
+            "technologies": [
+                "Python",
+                "FastAPI",
+                "Selenium",
+                "Playwright",
+                "GPT-4"
+            ]
+        },
+        {
+            "id": "proj-2",
+            "name": "RAG System",
+            "description": "Developed production-grade retrieval system improving query accuracy by 40%",
+            "technologies": [
+                "LangChain",
+                "ChromaDB",
+                "Python",
+                "FastAPI"
+            ]
+        }
+    ],
+    "certifications": [
+        {
+            "id": "cert-1",
+            "name": "AWS Solutions Architect",
+            "issuer": "Amazon Web Services",
+            "date": "In Progress"
+        },
+        {
+            "id": "cert-2",
+            "name": "Advanced RAG Systems",
+            "issuer": "DeepLearning.AI",
+            "date": "2024"
+        }
+    ],
+    "achievements": [
+        "Reduced infrastructure costs by 60% through intelligent automation implementation",
+        "Achieved 85% improvement in system reliability across production environments",
+        "Led technical implementations reducing deployment time by 60%"
+    ]
+}

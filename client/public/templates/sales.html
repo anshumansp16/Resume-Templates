@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: letter;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.4;
+            font-size: 10.5pt;
+        }
+
+        .resume-container {
+            width: 8.5in;
+            height: 11in;
+            margin: 0 auto;
+            padding: 0.5in 0.6in;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 0.15in;
+            border-bottom: 1.5pt solid #000000;
+            padding-bottom: 0.1in;
+        }
+
+        h1 {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 0.05in;
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+        }
+
+        .contact {
+            font-size: 9pt;
+            color: #333333;
+            margin-top: 0.05in;
+        }
+
+        .contact-divider {
+            margin: 0 0.1in;
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #000000;
+            text-transform: uppercase;
+            border-bottom: 1pt solid #000000;
+            padding-bottom: 0.02in;
+            margin-top: 0.12in;
+            margin-bottom: 0.08in;
+            letter-spacing: 0.5pt;
+        }
+
+        /* Summary */
+        .summary {
+            font-size: 10pt;
+            line-height: 1.35;
+            color: #333333;
+            margin-bottom: 0.1in;
+            text-align: justify;
+        }
+
+        /* Experience */
+        .exp-item {
+            margin-bottom: 0.12in;
+            page-break-inside: avoid;
+        }
+
+        .exp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.03in;
+        }
+
+        .exp-title {
+            font-size: 10.5pt;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .exp-company {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #333333;
+        }
+
+        .exp-date {
+            font-size: 9pt;
+            color: #666666;
+            font-style: italic;
+        }
+
+        .exp-location {
+            font-size: 9pt;
+            color: #666666;
+            margin-bottom: 0.04in;
+        }
+
+        ul {
+            margin-left: 0.18in;
+            margin-top: 0.03in;
+        }
+
+        li {
+            font-size: 10pt;
+            line-height: 1.35;
+            margin-bottom: 0.03in;
+            color: #333333;
+        }
+
+        /* Education */
+        .edu-item {
+            margin-bottom: 0.08in;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            page-break-inside: avoid;
+        }
+
+        .edu-left {
+            flex: 1;
+        }
+
+        .edu-degree {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .edu-school {
+            font-size: 10pt;
+            color: #333333;
+        }
+
+        .edu-date {
+            font-size: 9pt;
+            color: #666666;
+            font-style: italic;
+            white-space: nowrap;
+            margin-left: 0.1in;
+        }
+
+        /* Skills */
+        .skills-section {
+            margin-bottom: 0.1in;
+        }
+
+        .skills-list {
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333333;
+        }
+
+        .skill-category {
+            margin-bottom: 0.05in;
+        }
+
+        .skill-category strong {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        /* Projects */
+        .project-item {
+            margin-bottom: 0.08in;
+            page-break-inside: avoid;
+        }
+
+        .project-title {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .project-desc {
+            font-size: 10pt;
+            color: #333333;
+            line-height: 1.35;
+        }
+
+        /* Certifications */
+        .cert-item {
+            font-size: 10pt;
+            margin-bottom: 0.04in;
+            color: #333333;
+        }
+
+        .cert-name {
+            font-weight: 700;
+            color: #000000;
+        }
+
+        /* Compact spacing for single page */
+        .compact {
+            margin-bottom: 0.06in;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .resume-container {
+                box-shadow: none;
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header -->
+        <header id="header">
+            <h1 id="name">{{NAME}}</h1>
+            <div class="contact" id="contact">
+                {{CONTACT_INFO}}
+            </div>
+        </header>
+
+        <!-- Professional Summary -->
+        {{#if SUMMARY}}
+        <section id="summary-section">
+            <h2>Professional Summary</h2>
+            <p class="summary">{{SUMMARY}}</p>
+        </section>
+        {{/if}}
+
+        <!-- Work Experience -->
+        {{#if WORK_EXPERIENCE}}
+        <section id="experience-section">
+            <h2>Professional Experience</h2>
+            {{WORK_EXPERIENCE}}
+        </section>
+        {{/if}}
+
+        <!-- Education -->
+        {{#if EDUCATION}}
+        <section id="education-section">
+            <h2>Education</h2>
+            {{EDUCATION}}
+        </section>
+        {{/if}}
+
+        <!-- Skills -->
+        {{#if SKILLS}}
+        <section id="skills-section" class="skills-section">
+            <h2>Skills</h2>
+            <div class="skills-list">
+                {{SKILLS}}
+            </div>
+        </section>
+        {{/if}}
+
+        <!-- Projects -->
+        {{#if PROJECTS}}
+        <section id="projects-section">
+            <h2>Projects</h2>
+            {{PROJECTS}}
+        </section>
+        {{/if}}
+
+        <!-- Certifications -->
+        {{#if CERTIFICATIONS}}
+        <section id="certifications-section">
+            <h2>Certifications</h2>
+            {{CERTIFICATIONS}}
+        </section>
+        {{/if}}
+    </div>
+</body>
+</html>

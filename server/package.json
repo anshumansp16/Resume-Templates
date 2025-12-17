@@ -1,0 +1,43 @@
+{
+  "name": "resumepro-server",
+  "version": "1.0.0",
+  "description": "Backend server for ResumePro with Razorpay payment integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "keywords": ["resume", "payment", "razorpay"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "razorpay": "^2.9.4",
+    "better-sqlite3": "^11.8.1",
+    "nanoid": "^3.3.7",
+    "nodemailer": "^6.9.16",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.10.5",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/nodemailer": "^6.4.17",
+    "@types/morgan": "^1.9.9",
+    "typescript": "^5.7.3",
+    "ts-node-dev": "^2.0.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1"
+  }
+}

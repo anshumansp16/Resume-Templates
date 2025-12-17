@@ -1,0 +1,574 @@
+@import "tailwindcss";
+
+@theme {
+  /* ============================================
+     PREMIUM DARK MODE BRAND SYSTEM
+     Core Identity: Deep Charcoal + Royal Blue + Matte Gold
+     ============================================ */
+
+  /* Border Radius System */
+  --radius: 0.75rem;
+  --border-radius-sm: calc(var(--radius) - 4px);
+  --border-radius-md: calc(var(--radius) - 2px);
+  --border-radius-lg: var(--radius);
+  --border-radius-xl: var(--radius);
+
+  /* ============================================
+     BASE COLORS - Deep, Rich Charcoal Tones
+     Not pure black - adds warmth & sophistication
+     ============================================ */
+  --color-background: hsl(228 12% 5%);
+  --color-background-elevated: hsl(228 10% 7%);
+  --color-background-elevated-2: hsl(228 8% 10%);
+  --color-background-subtle: hsl(228 6% 13%);
+
+  /* ============================================
+     FOREGROUND COLORS - Clean, High Contrast
+     ============================================ */
+  --color-foreground: hsl(0 0% 98%);
+  --color-foreground-muted: hsl(220 15% 70%);
+  --color-foreground-soft: hsl(220 12% 56%);
+  --color-foreground-subtle: hsl(220 10% 40%);
+
+  /* ============================================
+     BRAND PRIMARY - Royal Blue Identity
+     Your signature color - never changes
+     ============================================ */
+  --color-primary-navy: hsl(232 65% 15%);
+  --color-primary-deep: hsl(232 72% 23%);
+  --color-primary-royal: hsl(228 68% 42%);
+  --color-primary: hsl(226 71% 55%);
+  --color-primary-electric: hsl(224 76% 62%);
+  --color-primary-light: hsl(222 82% 72%);
+  --color-primary-foreground: hsl(0 0% 98%);
+
+  /* ============================================
+     ACCENT - Matte Metallic Gold
+     Premium highlight - use SPARINGLY
+     ============================================ */
+  --color-accent-gold-dark: hsl(40 45% 38%);
+  --color-accent-gold: hsl(42 48% 52%);
+  --color-accent-gold-light: hsl(44 62% 62%);
+  --color-accent-gold-bright: hsl(46 70% 68%);
+
+  /* ============================================
+     SUCCESS - Emerald Green
+     Action states, success indicators
+     ============================================ */
+  --color-success-dark: hsl(158 64% 35%);
+  --color-success: hsl(158 64% 52%);
+  --color-success-light: hsl(158 64% 62%);
+
+  /* ============================================
+     SEMANTIC COLORS
+     ============================================ */
+  --color-secondary: hsl(228 10% 7%);
+  --color-secondary-foreground: hsl(0 0% 98%);
+
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+
+  --color-muted: hsl(228 8% 10%);
+  --color-muted-foreground: hsl(220 9% 65%);
+
+  --color-accent: hsl(228 68% 42%);
+  --color-accent-foreground: hsl(0 0% 98%);
+
+  --color-popover: hsl(228 10% 7%);
+  --color-popover-foreground: hsl(0 0% 98%);
+
+  --color-card: hsl(228 10% 7%);
+  --color-card-foreground: hsl(0 0% 98%);
+
+  /* ============================================
+     BORDERS & INPUTS - Subtle, Professional
+     ============================================ */
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-border-strong: rgba(255, 255, 255, 0.08);
+  --color-input: rgba(255, 255, 255, 0.08);
+  --color-ring: hsl(226 71% 55%);
+}
+
+@layer base {
+  :root {
+    /* Shadcn/ui variable mapping */
+    --card: var(--color-card);
+    --card-foreground: var(--color-card-foreground);
+    --popover: var(--color-popover);
+    --popover-foreground: var(--color-popover-foreground);
+    --primary: var(--color-primary);
+    --primary-foreground: var(--color-primary-foreground);
+    --secondary: var(--color-secondary);
+    --secondary-foreground: var(--color-secondary-foreground);
+    --muted: var(--color-muted);
+    --muted-foreground: var(--color-muted-foreground);
+    --accent: var(--color-accent);
+    --accent-foreground: var(--color-accent-foreground);
+    --destructive: var(--color-destructive);
+    --destructive-foreground: var(--color-destructive-foreground);
+    --border: var(--color-border);
+    --input: var(--color-input);
+    --ring: var(--color-ring);
+    --radius: 0.75rem;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* ============================================
+     TYPOGRAPHY HIERARCHY
+     Professional scale with purpose
+     ============================================ */
+  .text-display {
+    @apply text-6xl font-bold tracking-tight;
+    line-height: 1.1;
+  }
+
+  .text-hero {
+    @apply text-5xl font-bold tracking-tight;
+    line-height: 1.15;
+  }
+
+  .text-section {
+    @apply text-3xl font-semibold tracking-tight;
+    line-height: 1.2;
+  }
+
+  .text-title {
+    @apply text-2xl font-semibold tracking-tight;
+    line-height: 1.3;
+  }
+
+  .text-subtitle {
+    @apply text-lg font-medium;
+    line-height: 1.5;
+  }
+
+  .text-body-large {
+    @apply text-lg;
+    line-height: 1.6;
+  }
+
+  .text-body {
+    @apply text-base;
+    line-height: 1.65;
+  }
+
+  .text-caption {
+    @apply text-sm text-foreground-muted;
+    line-height: 1.5;
+  }
+
+  /* ============================================
+     TEXT GRADIENTS - Use Sparingly
+     Only for hero headlines, not everywhere
+     ============================================ */
+  .text-gradient-brand {
+    background: linear-gradient(90deg, var(--color-primary-electric), var(--color-primary-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-premium {
+    background: linear-gradient(90deg, var(--color-primary-royal), var(--color-accent-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(90deg, var(--color-accent-gold-light), var(--color-accent-gold-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ============================================
+     BACKGROUND GRADIENTS - Subtle, Directional
+     Creates depth without being loud
+     ============================================ */
+  .gradient-royal {
+    background: linear-gradient(135deg, var(--color-primary-navy), var(--color-primary-deep));
+  }
+
+  .gradient-blue-subtle {
+    background: linear-gradient(180deg, var(--color-background-elevated-2), var(--color-background-elevated));
+  }
+
+  .gradient-royal-horizontal {
+    background: linear-gradient(90deg, var(--color-primary-deep), var(--color-primary-royal));
+  }
+
+  /* ============================================
+     RADIAL GLOWS - Premium AI Energy Effect
+     Background ambient lighting
+     ============================================ */
+  .radial-blue-ambient {
+    position: relative;
+  }
+
+  .radial-blue-ambient::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--color-primary-electric) 15%, transparent) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .radial-gold-accent {
+    position: relative;
+  }
+
+  .radial-gold-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--color-accent-gold) 10%, transparent) 0%,
+      transparent 65%
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* ============================================
+     GLOW EFFECTS - Intentional Highlights
+     ============================================ */
+  .glow-blue {
+    box-shadow: 0 0 28px color-mix(in srgb, var(--color-primary-electric) 45%, transparent);
+  }
+
+  .glow-blue-intense {
+    box-shadow: 0 0 42px color-mix(in srgb, var(--color-primary-electric) 65%, transparent);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent-gold) 40%, transparent);
+  }
+
+  .glow-success {
+    box-shadow: 0 0 18px color-mix(in srgb, var(--color-success) 35%, transparent);
+  }
+
+  /* ============================================
+     PREMIUM CARDS - Glass & Elevation
+     ============================================ */
+  .card-glass {
+    background: color-mix(in srgb, var(--color-background-elevated) 85%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+  }
+
+  .card-elevated {
+    background: var(--color-background-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+  }
+
+  .card-premium {
+    background: linear-gradient(
+      180deg,
+      var(--color-background-elevated-2),
+      var(--color-background-elevated)
+    );
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Interactive glow card - reveals on hover */
+  .card-glow-interactive {
+    background: var(--color-background-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-glow-interactive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      color-mix(in srgb, var(--color-primary-electric) 12%, transparent) 0%,
+      transparent 80%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+  }
+
+  .card-glow-interactive:hover::before {
+    opacity: 1;
+  }
+
+  .card-glow-interactive:hover {
+    border-color: color-mix(in srgb, var(--color-primary-electric) 20%, var(--color-border-strong));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Template Card - Clean & Professional with Micro-Depth */
+  .card-template {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-template:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+  }
+
+  /* Feature Card - Subtle Elevation with Micro-Depth */
+  .card-feature {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-feature:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Glass Card - Frosted Effect with Micro-Depth */
+  .card-glass-modern {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-glass-modern:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* ============================================
+     BUTTONS - Professional & Clean
+     Solid colors, no glows, micro-interactions
+     ============================================ */
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-primary-electric);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-premium {
+    background: var(--color-accent-gold);
+    color: hsl(228 12% 5%);
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-premium:hover {
+    background: var(--color-accent-gold-light);
+    transform: translateY(-1px);
+  }
+
+  .btn-premium:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-foreground);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .btn-success {
+    background: var(--color-success);
+    color: white;
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-success:hover {
+    background: var(--color-success-light);
+  }
+
+  /* ============================================
+     SHADOWS - Layered, Premium Depth
+     ============================================ */
+  .shadow-soft {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .shadow-elevated {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+
+  .shadow-premium {
+    box-shadow:
+      0 0 0 1px var(--color-border),
+      0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  .shadow-brand {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent),
+      0 8px 28px color-mix(in srgb, var(--color-primary) 25%, transparent);
+  }
+
+  /* ============================================
+     SECTIONS - Structural Containers
+     ============================================ */
+  .section-hero {
+    min-height: 600px;
+    padding: 4rem 0;
+    position: relative;
+  }
+
+  .section-default {
+    padding: 5rem 0;
+  }
+
+  .section-compact {
+    padding: 3rem 0;
+  }
+
+  /* ============================================
+     BORDERS - Subtle Professional Lines
+     ============================================ */
+  .border-brand {
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  .border-gold {
+    border-color: color-mix(in srgb, var(--color-accent-gold) 25%, transparent);
+  }
+
+  /* ============================================
+     ANIMATIONS - Smooth, Professional
+     ============================================ */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
