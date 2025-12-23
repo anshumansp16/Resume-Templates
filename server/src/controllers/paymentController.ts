@@ -55,7 +55,7 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<v
       expires_at: calculateExpiryDate(expiryDays),
     };
 
-    createOrder(orderData);
+    await createOrder(orderData);
 
     res.status(200).json({
       success: true,
@@ -91,7 +91,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const order = getOrderByRazorpayOrderId(razorpay_order_id);
+    const order = await getOrderByRazorpayOrderId(razorpay_order_id);
 
     if (!order) {
       res.status(404).json({
@@ -110,7 +110,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
     );
 
     if (!isValid) {
-      updateOrderPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'failed');
+      await updateOrderPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'failed');
       res.status(400).json({
         success: false,
         message: 'Invalid payment signature',
@@ -118,7 +118,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    updateOrderPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'completed');
+    await updateOrderPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature, 'completed');
 
     try {
       await sendDownloadLinkEmail({

@@ -18,7 +18,7 @@ export const downloadResume = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const order = getOrderByDownloadToken(token);
+    const order = await getOrderByDownloadToken(token);
 
     if (!order) {
       res.status(404).json({
@@ -45,7 +45,7 @@ export const downloadResume = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    incrementDownloadCount(token);
+    await incrementDownloadCount(token);
 
     const resumeData = JSON.parse(order.resume_data);
 
@@ -77,7 +77,7 @@ export const resendDownloadLink = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const orders = getOrdersByEmail(email);
+    const orders = await getOrdersByEmail(email);
 
     const completedOrders = orders.filter(
       (order) => order.payment_status === 'completed' && Date.now() <= order.expires_at

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { PDF_RESUME_EXTRACTION_PROMPT } from "@/lib/pdf-prompts";
+import { parseWithGroq, isGroqConfigured } from "@/lib/groq-service";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
 // Set up the worker for pdfjs-dist (legacy build for Node.js)
@@ -76,23 +77,64 @@ export async function POST(request: NextRequest) {
         // Use AI to extract structured data from PDF text
         console.log(`[PDF Parse] Calling AI to extract structured resume data...`);
 
-        const ollamaResponse = await axios.post(
-            OLLAMA_API_URL,
-            {
-                model: "llama3",
-                prompt: PDF_RESUME_EXTRACTION_PROMPT(pdfText),
-                stream: false,
-                options: {
-                    temperature: 0.2, // Low temperature for accurate extraction
-                    num_predict: 3000, // Allow longer responses for detailed resumes
-                },
-            },
-            {
-                timeout: 180000, // 3 minute timeout for AI processing
-            }
-        );
+        let aiResponse: string;
+        let usedGroq = false;
 
-        const aiResponse = ollamaResponse.data.response?.trim();
+        try {
+            // Try Ollama first
+            const ollamaResponse = await axios.post(
+                OLLAMA_API_URL,
+                {
+                    model: "llama3",
+                    prompt: PDF_RESUME_EXTRACTION_PROMPT(pdfText),
+                    stream: false,
+                    options: {
+                        temperature: 0.2, // Low temperature for accurate extraction
+                        num_predict: 3000, // Allow longer responses for detailed resumes
+                    },
+                },
+                {
+                    timeout: 180000, // 3 minute timeout for AI processing
+                }
+            );
+
+            aiResponse = ollamaResponse.data.response?.trim();
+            console.log(`[PDF Parse] Using Ollama for PDF parsing`);
+        } catch (ollamaError: any) {
+            // If Ollama is not available, fall back to Groq
+            if (ollamaError.code === "ECONNREFUSED" && isGroqConfigured()) {
+                console.log(`[PDF Parse] Ollama not available, falling back to Groq API...`);
+                try {
+                    aiResponse = await parseWithGroq({
+                        prompt: PDF_RESUME_EXTRACTION_PROMPT(pdfText),
+                        temperature: 0.2,
+                        maxTokens: 3000,
+                    });
+                    usedGroq = true;
+                } catch (groqError: any) {
+                    console.error(`[PDF Parse] Groq fallback failed:`, groqError.message);
+                    return NextResponse.json(
+                        {
+                            success: false,
+                            error: "Both Ollama and Groq API are unavailable. Please try again later.",
+                        },
+                        { status: 503 }
+                    );
+                }
+            } else if (ollamaError.code === "ECONNREFUSED") {
+                // Ollama not available and Groq not configured
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "Ollama is not running. Please start Ollama server to parse PDFs.",
+                    },
+                    { status: 503 }
+                );
+            } else {
+                // Re-throw other errors to be handled by the outer catch block
+                throw ollamaError;
+            }
+        }
 
         if (!aiResponse) {
             return NextResponse.json(
@@ -182,16 +224,6 @@ export async function POST(request: NextRequest) {
         console.error("[PDF Parse] Error:", error.message);
 
         // Check for specific errors
-        if (error.code === "ECONNREFUSED") {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Ollama is not running. Please start Ollama server to parse PDFs.",
-                },
-                { status: 503 }
-            );
-        }
-
         if (error.message?.includes("timeout")) {
             return NextResponse.json(
                 {

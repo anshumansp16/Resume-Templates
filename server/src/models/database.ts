@@ -1,38 +1,12 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { MongoClient, Db, Collection, ObjectId } from 'mongodb';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../database.sqlite');
-const db: Database.Database = new Database(dbPath);
-
-db.pragma('journal_mode = WAL');
-
-const createTablesSQL = `
-  CREATE TABLE IF NOT EXISTS orders (
-    id TEXT PRIMARY KEY,
-    email TEXT NOT NULL,
-    razorpay_order_id TEXT UNIQUE NOT NULL,
-    razorpay_payment_id TEXT,
-    razorpay_signature TEXT,
-    resume_data TEXT NOT NULL,
-    template_id TEXT NOT NULL,
-    payment_status TEXT NOT NULL DEFAULT 'pending',
-    amount INTEGER NOT NULL,
-    currency TEXT NOT NULL DEFAULT 'INR',
-    download_token TEXT UNIQUE NOT NULL,
-    created_at INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL,
-    download_count INTEGER DEFAULT 0
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_email ON orders(email);
-  CREATE INDEX IF NOT EXISTS idx_download_token ON orders(download_token);
-  CREATE INDEX IF NOT EXISTS idx_razorpay_order_id ON orders(razorpay_order_id);
-  CREATE INDEX IF NOT EXISTS idx_payment_status ON orders(payment_status);
-`;
-
-db.exec(createTablesSQL);
+let mongoServer: MongoMemoryServer | null = null;
+let client: MongoClient | null = null;
+let db: Db | null = null;
 
 export interface Order {
+  _id?: ObjectId;
   id: string;
   email: string;
   razorpay_order_id: string;
@@ -49,70 +23,139 @@ export interface Order {
   download_count: number;
 }
 
-export const createOrder = (orderData: Omit<Order, 'download_count'>) => {
-  const stmt = db.prepare(`
-    INSERT INTO orders (
-      id, email, razorpay_order_id, resume_data, template_id,
-      payment_status, amount, currency, download_token,
-      created_at, expires_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+let ordersCollection: Collection<Order> | null = null;
 
-  return stmt.run(
-    orderData.id,
-    orderData.email,
-    orderData.razorpay_order_id,
-    orderData.resume_data,
-    orderData.template_id,
-    orderData.payment_status,
-    orderData.amount,
-    orderData.currency,
-    orderData.download_token,
-    orderData.created_at,
-    orderData.expires_at
-  );
+export const initializeDatabase = async () => {
+  try {
+    // Check if we should use in-memory MongoDB or a real MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+
+    if (mongoUri) {
+      // Use real MongoDB connection
+      console.log('[Database] Connecting to MongoDB...');
+      client = new MongoClient(mongoUri);
+      await client.connect();
+      db = client.db(process.env.MONGODB_DB_NAME || 'resumepro');
+      console.log('[Database] Connected to MongoDB');
+    } else {
+      // Use in-memory MongoDB for development
+      console.log('[Database] Starting in-memory MongoDB server...');
+      mongoServer = await MongoMemoryServer.create();
+      const uri = mongoServer.getUri();
+
+      client = new MongoClient(uri);
+      await client.connect();
+      db = client.db('resumepro');
+      console.log('[Database] In-memory MongoDB server started');
+    }
+
+    ordersCollection = db.collection<Order>('orders');
+
+    // Create indexes for better performance
+    await ordersCollection.createIndex({ email: 1 });
+    await ordersCollection.createIndex({ download_token: 1 }, { unique: true });
+    await ordersCollection.createIndex({ razorpay_order_id: 1 }, { unique: true });
+    await ordersCollection.createIndex({ payment_status: 1 });
+    await ordersCollection.createIndex({ created_at: 1 });
+
+    console.log('[Database] Indexes created successfully');
+  } catch (error) {
+    console.error('[Database] Failed to initialize:', error);
+    throw error;
+  }
 };
 
-export const getOrderByRazorpayOrderId = (razorpayOrderId: string): Order | undefined => {
-  const stmt = db.prepare('SELECT * FROM orders WHERE razorpay_order_id = ?');
-  return stmt.get(razorpayOrderId) as Order | undefined;
+export const closeDatabase = async () => {
+  try {
+    if (client) {
+      await client.close();
+      console.log('[Database] MongoDB connection closed');
+    }
+    if (mongoServer) {
+      await mongoServer.stop();
+      console.log('[Database] In-memory MongoDB server stopped');
+    }
+  } catch (error) {
+    console.error('[Database] Error closing database:', error);
+  }
 };
 
-export const getOrderByDownloadToken = (downloadToken: string): Order | undefined => {
-  const stmt = db.prepare('SELECT * FROM orders WHERE download_token = ?');
-  return stmt.get(downloadToken) as Order | undefined;
+const getOrdersCollection = (): Collection<Order> => {
+  if (!ordersCollection) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.');
+  }
+  return ordersCollection;
 };
 
-export const getOrdersByEmail = (email: string): Order[] => {
-  const stmt = db.prepare('SELECT * FROM orders WHERE email = ? ORDER BY created_at DESC');
-  return stmt.all(email) as Order[];
+export const createOrder = async (orderData: Omit<Order, 'download_count' | '_id'>) => {
+  const collection = getOrdersCollection();
+
+  const order: Order = {
+    ...orderData,
+    download_count: 0,
+  };
+
+  const result = await collection.insertOne(order);
+  return { insertedId: result.insertedId, changes: 1 };
 };
 
-export const updateOrderPayment = (
+export const getOrderByRazorpayOrderId = async (razorpayOrderId: string): Promise<Order | null> => {
+  const collection = getOrdersCollection();
+  return await collection.findOne({ razorpay_order_id: razorpayOrderId });
+};
+
+export const getOrderByDownloadToken = async (downloadToken: string): Promise<Order | null> => {
+  const collection = getOrdersCollection();
+  return await collection.findOne({ download_token: downloadToken });
+};
+
+export const getOrdersByEmail = async (email: string): Promise<Order[]> => {
+  const collection = getOrdersCollection();
+  return await collection.find({ email }).sort({ created_at: -1 }).toArray();
+};
+
+export const updateOrderPayment = async (
   razorpayOrderId: string,
   paymentId: string,
   signature: string,
   status: 'completed' | 'failed'
 ) => {
-  const stmt = db.prepare(`
-    UPDATE orders
-    SET razorpay_payment_id = ?,
-        razorpay_signature = ?,
-        payment_status = ?
-    WHERE razorpay_order_id = ?
-  `);
+  const collection = getOrdersCollection();
 
-  return stmt.run(paymentId, signature, status, razorpayOrderId);
+  const result = await collection.updateOne(
+    { razorpay_order_id: razorpayOrderId },
+    {
+      $set: {
+        razorpay_payment_id: paymentId,
+        razorpay_signature: signature,
+        payment_status: status,
+      },
+    }
+  );
+
+  return { changes: result.modifiedCount };
 };
 
-export const incrementDownloadCount = (downloadToken: string) => {
-  const stmt = db.prepare(`
-    UPDATE orders
-    SET download_count = download_count + 1
-    WHERE download_token = ?
-  `);
+export const incrementDownloadCount = async (downloadToken: string) => {
+  const collection = getOrdersCollection();
 
-  return stmt.run(downloadToken);
+  const result = await collection.updateOne(
+    { download_token: downloadToken },
+    { $inc: { download_count: 1 } }
+  );
+
+  return { changes: result.modifiedCount };
 };
 
-export default db;
+export const getDatabase = (): Db => {
+  if (!db) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.');
+  }
+  return db;
+};
+
+export default {
+  initializeDatabase,
+  closeDatabase,
+  getDatabase,
+};
