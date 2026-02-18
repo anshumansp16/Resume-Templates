@@ -26,10 +26,83 @@
 
         .resume-container {
             width: 8.5in;
-            height: 11in;
+            min-height: 11in;
             margin: 0 auto;
             padding: 0.6in 0.7in;
             background-color: #ffffff;
+        }
+
+        /* Mobile Responsiveness */
+        @media screen and (max-width: 768px) {
+            .resume-container {
+                width: 100% !important;
+                max-width: 100vw;
+                min-height: auto;
+                padding: 24px 20px;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-size: 14px;
+            }
+
+            .name {
+                font-size: 24px;
+                letter-spacing: 0.5px;
+            }
+
+            .title {
+                font-size: 14px;
+            }
+
+            .contact-info {
+                font-size: 12px;
+                word-break: break-word;
+            }
+
+            .section-title {
+                font-size: 14px;
+            }
+
+            .section-content {
+                font-size: 13px;
+            }
+
+            .job-title {
+                font-size: 13px;
+            }
+
+            .skill-item {
+                font-size: 13px;
+            }
+
+            .job-responsibilities,
+            .achievements-list {
+                margin-left: 20px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .resume-container {
+                padding: 20px 16px;
+            }
+
+            .name {
+                font-size: 22px;
+            }
+
+            .title {
+                font-size: 13px;
+            }
+
+            .section {
+                margin-bottom: 16px;
+            }
+
+            .job-responsibilities,
+            .achievements-list {
+                margin-left: 16px;
+            }
         }
 
         /* Header */

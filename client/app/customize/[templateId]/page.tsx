@@ -21,8 +21,12 @@ import axios from "axios";
 import { WorkExperience, Education, Project, Certification } from "@/lib/types";
 import { LinkedInImport } from "@/components/linkedin-import";
 import { PDFImport } from "@/components/pdf-import";
+import { InputDialog } from "@/components/ui/input-dialog";
+import { FormInput } from "@/components/ui/form-input";
+import { validateEmail, validatePhone, validateUrl, validateRequired } from "@/lib/validation";
 import toast, { Toaster } from 'react-hot-toast';
 import { trackResumeCreationStarted, trackResumeCompleted } from "@/lib/gtag";
+import { sampleResumeData } from "@/lib/sample-data";
 
 interface CustomizePageProps {
     params: Promise<{ templateId: string }>;
@@ -84,6 +88,13 @@ export default function CustomizePage({ params }: CustomizePageProps) {
 
     const [generating, setGenerating] = useState<string | null>(null);
     const [currentStep, setCurrentStep] = useState(1);
+
+    // Input dialog state
+    const [inputDialogOpen, setInputDialogOpen] = useState(false);
+    const [currentExpId, setCurrentExpId] = useState<string | null>(null);
+
+    // Validation errors
+    const [validationErrors, setValidationErrors] = useState<Record<string, string | null>>({});
 
     useEffect(() => {
         params.then((p) => {
@@ -304,7 +315,7 @@ export default function CustomizePage({ params }: CustomizePageProps) {
             }
         } catch (error) {
             console.error("Error generating summary:", error);
-            alert("Failed to generate summary. Make sure Ollama is running.");
+            toast.error("Failed to generate summary. Please try again or contact support.");
         } finally {
             setGenerating(null);
         }
@@ -333,7 +344,7 @@ export default function CustomizePage({ params }: CustomizePageProps) {
             }
         } catch (error) {
             console.error("Error generating achievements:", error);
-            alert("Failed to generate achievements. Make sure Ollama is running.");
+            toast.error("Failed to generate achievements. Please try again or contact support.");
         } finally {
             setGenerating(null);
         }
@@ -358,7 +369,7 @@ export default function CustomizePage({ params }: CustomizePageProps) {
             }
         } catch (error) {
             console.error("Error generating project description:", error);
-            alert("Failed to generate description. Make sure Ollama is running.");
+            toast.error("Failed to generate description. Please try again or contact support.");
         } finally {
             setGenerating(null);
         }
@@ -516,6 +527,67 @@ export default function CustomizePage({ params }: CustomizePageProps) {
 
         // Move to step 2
         setTimeout(() => setCurrentStep(2), 1000);
+    };
+
+    // Fill with sample data
+    const fillWithSampleData = () => {
+        // Fill personal info
+        setName(sampleResumeData.personalInfo.name);
+        setEmail(sampleResumeData.personalInfo.email);
+        setPhone(sampleResumeData.personalInfo.phone);
+        setLocation(sampleResumeData.personalInfo.location || "");
+        setLinkedin(sampleResumeData.personalInfo.linkedin || "");
+        setGithub(sampleResumeData.personalInfo.github || "");
+        setWebsite(sampleResumeData.personalInfo.website || "");
+
+        // Fill summary
+        setSummary(sampleResumeData.summary || "");
+
+        // Fill work experience
+        setWorkExperiences(sampleResumeData.workExperience.map(exp => ({
+            ...exp,
+            location: exp.location || ""
+        })));
+
+        // Fill education
+        setEducationList(sampleResumeData.education.map(edu => ({
+            ...edu,
+            location: edu.location || "",
+            gpa: edu.gpa || "",
+            honors: edu.honors || ""
+        })));
+
+        // Fill skills - convert from categorized to comma-separated
+        const allSkills = sampleResumeData.skills
+            .flatMap(category => category.items)
+            .join(", ");
+        setSkillsText(allSkills);
+
+        // Fill projects
+        if (sampleResumeData.projects && sampleResumeData.projects.length > 0) {
+            setProjects(sampleResumeData.projects.map(proj => ({
+                ...proj,
+                link: proj.link || "",
+                highlights: []
+            })));
+        }
+
+        // Fill certifications
+        if (sampleResumeData.certifications && sampleResumeData.certifications.length > 0) {
+            setCertifications(sampleResumeData.certifications.map(cert => ({
+                ...cert,
+                link: cert.link || ""
+            })));
+        }
+
+        // Show success message
+        toast.success('Sample data loaded! Feel free to edit any field.', {
+            icon: '✨',
+            duration: 4000,
+        });
+
+        // Move to step 2 to show the filled data
+        setTimeout(() => setCurrentStep(2), 500);
     };
 
     // Validate and show missing fields
@@ -798,11 +870,45 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                     {/* Step 1: Personal Information */}
                     {currentStep === 1 && (
                         <div className="space-y-6">
-                            {/* LinkedIn Import */}
-                            <LinkedInImport onDataExtracted={handleLinkedInData} />
+                            {/* Quick Start Options */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* LinkedIn Import */}
+                                <LinkedInImport onDataExtracted={handleLinkedInData} />
 
-                            {/* PDF Import */}
-                            <PDFImport onDataExtracted={handlePDFData} />
+                                {/* PDF Import */}
+                                <PDFImport onDataExtracted={handlePDFData} />
+
+                                {/* Sample Data */}
+                                <button
+                                    onClick={fillWithSampleData}
+                                    className="group relative overflow-hidden rounded-xl border-2 border-dashed border-purple-300 bg-purple-50 p-6 transition-all hover:border-purple-400 hover:bg-purple-100 hover:shadow-lg dark:border-purple-700 dark:bg-purple-900/20 dark:hover:border-purple-600 dark:hover:bg-purple-900/30"
+                                >
+                                    <div className="flex flex-col items-center text-center gap-3">
+                                        <div className="rounded-full bg-purple-100 p-3 dark:bg-purple-900/40">
+                                            <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-purple-900 dark:text-purple-100">
+                                                Try Sample Data
+                                            </h3>
+                                            <p className="mt-1 text-xs text-purple-700 dark:text-purple-300">
+                                                See how it works with pre-filled example
+                                            </p>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-zinc-200 dark:border-zinc-700"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 px-4 text-zinc-500 dark:text-zinc-400">
+                                        or fill manually
+                                    </span>
+                                </div>
+                            </div>
 
                             <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                                 <div className="mb-4 flex items-center gap-3">
@@ -814,7 +920,7 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                     </h2>
                                 </div>
 
-                                <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="sm:col-span-2">
                                         <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                             Full Name <span className="text-red-500">*</span>
@@ -978,14 +1084,14 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                         </div>
                                         <button
                                             onClick={() => removeWorkExperience(exp.id)}
-                                            className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                            className="rounded-lg p-3 sm:p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                                             title={workExperiences.length === 1 ? 'Cannot delete the only work experience' : 'Delete this work experience'}
                                         >
                                             <Trash2 className="h-5 w-5" />
                                         </button>
                                     </div>
 
-                                    <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                                 Job Title {index === 0 && <span className="text-red-500">*</span>}
@@ -1075,10 +1181,8 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                                 ))}
                                                 <button
                                                     onClick={() => {
-                                                        const newAchievement = prompt("Enter achievement:");
-                                                        if (newAchievement) {
-                                                            updateWorkExperience(exp.id, "achievements", [...exp.achievements, newAchievement]);
-                                                        }
+                                                        setCurrentExpId(exp.id);
+                                                        setInputDialogOpen(true);
                                                     }}
                                                     className="w-full rounded-lg border-2 border-dashed border-zinc-300 px-4 py-2 text-sm text-zinc-600 transition-colors hover:border-blue-500 hover:text-blue-600 dark:border-zinc-700 dark:text-zinc-400"
                                                 >
@@ -1126,12 +1230,12 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                                 onClick={() => removeEducation(edu.id)}
                                                 className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                                             >
-                                                <Trash2 className="h-5 w-5" />
+                                                <Trash2 className="h-5 w-5 sm:h-5 sm:w-5" />
                                             </button>
                                         )}
                                     </div>
 
-                                    <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div className="sm:col-span-2">
                                             <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                                 Degree {index === 0 && <span className="text-red-500">*</span>}
@@ -1291,7 +1395,7 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                                     onClick={() => removeProject(proj.id)}
                                                     className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                                                 >
-                                                    <Trash2 className="h-5 w-5" />
+                                                    <Trash2 className="h-5 w-5 sm:h-5 sm:w-5" />
                                                 </button>
                                             </div>
 
@@ -1390,11 +1494,11 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                                                     onClick={() => removeCertification(cert.id)}
                                                     className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                                                 >
-                                                    <Trash2 className="h-5 w-5" />
+                                                    <Trash2 className="h-5 w-5 sm:h-5 sm:w-5" />
                                                 </button>
                                             </div>
 
-                                            <div className="grid gap-4 sm:grid-cols-2">
+                                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                                 <div className="sm:col-span-2">
                                                     <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                                         Certification Name
@@ -1475,6 +1579,25 @@ export default function CustomizePage({ params }: CustomizePageProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Input Dialog for Adding Achievements */}
+            <InputDialog
+                open={inputDialogOpen}
+                onOpenChange={setInputDialogOpen}
+                title="Add Achievement"
+                description="Enter a key achievement or responsibility for this position"
+                placeholder="e.g., Increased team productivity by 40% through process optimization"
+                onConfirm={(value) => {
+                    if (currentExpId) {
+                        const exp = workExperiences.find(e => e.id === currentExpId);
+                        if (exp) {
+                            updateWorkExperience(currentExpId, "achievements", [...exp.achievements, value]);
+                            toast.success("Achievement added successfully!");
+                        }
+                    }
+                }}
+                confirmText="Add Achievement"
+            />
         </div>
     );
 }

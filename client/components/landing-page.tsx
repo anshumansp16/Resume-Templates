@@ -7,6 +7,7 @@ import { ArrowRight, Check, Download, FileText, Sparkles, Zap } from "lucide-rea
 import { templates, TemplateMetadata } from "@/lib/template-config";
 import dynamic from "next/dynamic";
 import { trackTemplateSelect, trackButtonClick } from "@/lib/gtag";
+import { MobileNav } from "@/components/mobile-nav";
 
 // Dynamic import to avoid SSR issues with PDF.js
 const TemplatePreviewModal = dynamic(
@@ -17,6 +18,7 @@ const TemplatePreviewModal = dynamic(
 export function LandingPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateMetadata | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string>("All");
 
   const handlePreview = (template: TemplateMetadata) => {
     // Track template selection
@@ -25,6 +27,14 @@ export function LandingPage() {
     setSelectedTemplate(template);
     setIsPreviewOpen(true);
   };
+
+  // Get unique categories from templates
+  const categories = ["All", ...Array.from(new Set(templates.map(t => t.category)))];
+
+  // Filter templates based on selected category
+  const filteredTemplates = selectedFilter === "All"
+    ? templates
+    : templates.filter(t => t.category === selectedFilter);
 
   return (
     <div className="min-h-screen font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-background to-background">
@@ -49,17 +59,18 @@ export function LandingPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="#templates"
-                className="hidden sm:inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-foreground-muted hover:text-foreground transition-colors"
+                className="hidden md:inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-foreground-muted hover:text-foreground transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="#templates"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-electric transition-all"
+                className="hidden md:inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-electric transition-all"
               >
                 Get Started Free
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              <MobileNav />
             </div>
           </div>
         </div>
@@ -158,50 +169,112 @@ export function LandingPage() {
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-3 tracking-tight">
               Find Your Perfect Template
             </h2>
-            <p className="text-lg text-foreground-muted max-w-3xl mx-auto">
-              5 expert-designed templates covering 90% of career paths. More added every month.
+            <p className="text-lg text-foreground-muted max-w-3xl mx-auto mb-8">
+              {templates.length} expert-designed templates covering 90% of career paths. More added every month.
             </p>
+
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setSelectedFilter(category);
+                    trackButtonClick(`filter_${category.toLowerCase()}`, 'templates_section');
+                  }}
+                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                    selectedFilter === category
+                      ? "bg-primary text-white shadow-lg scale-105"
+                      : "bg-white/5 text-foreground-muted hover:bg-white/10 hover:text-foreground border border-border"
+                  }`}
+                >
+                  {category}
+                  {category === "All" && (
+                    <span className="ml-2 text-xs opacity-75">({templates.length})</span>
+                  )}
+                  {category !== "All" && (
+                    <span className="ml-2 text-xs opacity-75">
+                      ({templates.filter(t => t.category === category).length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {templates.map((template) => (
-              <div
+
+          {/* Templates Grid */}
+          {filteredTemplates.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {filteredTemplates.map((template, index) => (
+                <div
                 key={template.id}
-                className="group card-template cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10 transition-all duration-300"
-                onClick={() => handlePreview(template)}
+                className="group card-template cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 ease-out"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handlePreview(template);
+                }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handlePreview(template);
+                  }
+                }}
               >
                 {/* Glowing top bar with gradient */}
-                <div className="h-0.5 bg-gradient-to-r from-primary-electric to-primary-light opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="h-0.5 bg-gradient-to-r from-primary-electric to-primary-light opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none" />
                 <div className="h-64 bg-gradient-to-br from-neutral-100 to-neutral-50 dark:from-neutral-900 dark:to-neutral-800 flex items-center justify-center relative overflow-hidden">
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full transform group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none">
                     <Image
                       src={`/images/previews/${template.id}.png`}
-                      alt={`${template.name} template preview`}
+                      alt={`${template.name} template preview - ATS-optimized resume for ${template.category}`}
                       fill
-                      className="object-cover object-top"
+                      className="object-cover object-top pointer-events-none"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      loading={index < 3 ? "eager" : "lazy"}
+                      priority={index < 2}
+                      quality={85}
+                      draggable={false}
                     />
                   </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="text-white text-sm font-semibold px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500 ease-out flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                    <span className="text-white text-sm font-semibold px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 transform scale-95 group-hover:scale-100 transition-transform duration-500 ease-out">
                       Preview Template
                     </span>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-foreground mb-2 tracking-tight">
+                <div className="p-6 pointer-events-none">
+                  <h3 className="text-lg font-bold text-foreground mb-2 tracking-tight group-hover:text-primary transition-colors duration-300 ease-out">
                     {template.name}
                   </h3>
                   <p className="text-sm text-foreground-muted mb-5 leading-relaxed">
                     {template.description}
                   </p>
-                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-light group-hover:gap-3 transition-all">
+                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-light group-hover:gap-3 transition-all duration-300 ease-out">
                     Preview
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300 ease-out" />
                   </span>
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <FileText className="h-16 w-16 text-foreground-muted mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">No templates found</h3>
+              <p className="text-foreground-muted mb-6">
+                No templates match the "{selectedFilter}" category yet.
+              </p>
+              <button
+                onClick={() => setSelectedFilter("All")}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-electric transition-all"
+              >
+                View All Templates
+              </button>
+            </div>
+          )}
           <div className="text-center">
             <p className="text-foreground-muted text-sm">
               All templates are ATS-optimized and industry-tested.
@@ -240,7 +313,7 @@ export function LandingPage() {
               <span className="text-base font-bold text-foreground tracking-tight">ResumePro</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 ResumePro. All rights reserved.
+              © {new Date().getFullYear()} ResumePro. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
