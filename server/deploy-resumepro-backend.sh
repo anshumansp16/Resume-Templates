@@ -1,69 +1,71 @@
 #!/bin/bash
 
-# ResumePro Backend-Only Deployment Script
-# Frontend is on Vercel
-# Run this on the ResumePro EC2 instance
-# Usage: bash deploy-resumepro-backend.sh
+# ResumePro Backend Deployment Script
+# Run this ON THE EC2 INSTANCE (after git pull)
+# This script assumes the repo is already cloned
 
 set -e
-
-APP_NAME="resumepro"
-APP_DIR="$HOME/$APP_NAME"
-API_DOMAIN="api.resume.anshumansp.com"
 
 echo "================================"
 echo "ResumePro Backend Deployment"
 echo "================================"
 
+# Get project root (parent of server directory where this script is)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$PROJECT_ROOT"
+echo "Project root: $PROJECT_ROOT"
+
 # Check if running in correct environment
 if ! command -v docker &> /dev/null; then
-    echo "Error: Docker not found. Please run ec2-setup.sh first"
+    echo "❌ Error: Docker not found. Please run ec2-setup.sh first"
     exit 1
 fi
 
-# Clone repository if not exists
-if [ ! -d "$APP_DIR" ]; then
-    echo "Cloning repository..."
-    read -p "Enter ResumePro repository URL: " REPO_URL
-    git clone "$REPO_URL" "$APP_DIR"
-else
-    echo "Repository already exists, pulling latest changes..."
-    cd "$APP_DIR"
-    git pull
-fi
+# Pull latest changes
+echo ""
+echo "Pulling latest changes from git..."
+git pull || echo "⚠️  Warning: git pull failed, continuing anyway..."
 
-cd "$APP_DIR"
+# Check if .env.production exists
+if [ ! -f "$PROJECT_ROOT/.env.production" ]; then
+    echo ""
+    echo "Creating .env.production from .env.docker.example..."
+    cp "$PROJECT_ROOT/.env.docker.example" "$PROJECT_ROOT/.env.production" 2>/dev/null || \
+    cp "$PROJECT_ROOT/server/.env.example" "$PROJECT_ROOT/.env.production" 2>/dev/null || \
+    touch "$PROJECT_ROOT/.env.production"
 
-# Create production environment file
-echo "Setting up environment variables..."
-if [ ! -f ".env.production" ]; then
-    cp .env.docker.example .env.production
-
-    # Get server IP
-    SERVER_IP=$(curl -s http://checkip.amazonaws.com)
+    SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "unknown")
 
     echo ""
     echo "Server IP: $SERVER_IP"
     echo ""
-    echo "Configure these in .env.production:"
-    echo "  - MONGODB_URI (use MongoDB Atlas)"
-    echo "  - RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET"
-    echo "  - EMAIL credentials"
+    echo "⚠️  IMPORTANT: Configure .env.production with:"
+    echo "  - NODE_ENV=production"
+    echo "  - PORT=5000"
     echo "  - FRONTEND_URL=https://resume.anshumansp.com"
+    echo "  - MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/resumepro_prod"
+    echo "  - RAZORPAY_KEY_ID=rzp_live_xxxxx"
+    echo "  - RAZORPAY_KEY_SECRET=your_secret"
+    echo "  - EMAIL_HOST=smtp.gmail.com"
+    echo "  - EMAIL_PORT=587"
+    echo "  - EMAIL_USER=your_email@gmail.com"
+    echo "  - EMAIL_PASSWORD=your_app_password"
+    echo "  - GROQ_API_KEY=gsk_xxxxx"
     echo ""
-    echo "Opening editor in 5 seconds..."
-    sleep 5
-    nano .env.production
+    read -p "Press Enter to edit .env.production now..."
+    nano "$PROJECT_ROOT/.env.production"
 fi
 
 # Create backend-only docker-compose override
+echo ""
 echo "Creating docker-compose.backend.yml..."
-cat > docker-compose.backend.yml <<'EOF'
+cat > "$PROJECT_ROOT/docker-compose.backend.yml" <<'EOF'
 services:
-  # Backend Server Only
   server:
     ports:
-      - "127.0.0.1:5000:5000"  # Only accessible via localhost/nginx
+      - "127.0.0.1:5000:5000"
     environment:
       - NODE_ENV=production
     env_file:
@@ -72,9 +74,9 @@ services:
       - backend
 EOF
 
-# Create systemd service
-echo "Creating systemd service..."
-sudo tee /etc/systemd/system/$APP_NAME-backend.service > /dev/null <<EOF
+# Create or update systemd service
+echo "Setting up systemd service..."
+sudo tee /etc/systemd/system/resumepro-backend.service > /dev/null <<EOF
 [Unit]
 Description=ResumePro Backend API
 Requires=docker.service
@@ -83,7 +85,7 @@ After=docker.service network.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=$APP_DIR
+WorkingDirectory=$PROJECT_ROOT
 ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.backend.yml --profile backend up -d server
 ExecStop=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.backend.yml --profile backend down
 User=$USER
@@ -95,38 +97,33 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-# Create nginx configuration
-echo "Creating nginx configuration..."
-sudo tee /etc/nginx/sites-available/$APP_NAME-api > /dev/null <<EOF
-# ResumePro Backend API
+# Create or update nginx configuration
+if [ ! -f "/etc/nginx/sites-available/resumepro-api" ]; then
+    echo "Creating nginx configuration..."
+    sudo tee /etc/nginx/sites-available/resumepro-api > /dev/null <<'EOF'
 server {
     listen 80;
-    server_name $API_DOMAIN;
+    server_name api.resume.anshumansp.com;
 
-    # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
 
-    # API endpoint
     location / {
         proxy_pass http://127.0.0.1:5000;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_cache_bypass \$http_upgrade;
-
-        # Timeouts
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
 
-    # Health check endpoint
     location /health {
         proxy_pass http://127.0.0.1:5000/health;
         access_log off;
@@ -134,64 +131,65 @@ server {
 }
 EOF
 
-# Enable nginx site
-sudo ln -sf /etc/nginx/sites-available/$APP_NAME-api /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+    sudo ln -sf /etc/nginx/sites-available/resumepro-api /etc/nginx/sites-enabled/
+    sudo nginx -t && sudo systemctl reload nginx
 
-# Build and start backend
-echo "Building and starting backend container..."
+    echo ""
+    read -p "Setup SSL certificate now? (y/n): " SETUP_SSL
+    if [ "$SETUP_SSL" = "y" ]; then
+        read -p "Enter email for Let's Encrypt: " EMAIL
+        sudo certbot --nginx -d api.resume.anshumansp.com --non-interactive --agree-tos -m "$EMAIL" --redirect || echo "⚠️  SSL setup failed, continuing..."
+    fi
+fi
+
+echo ""
+echo "================================"
+echo "Building and Deploying Backend"
+echo "================================"
+
+# Stop existing containers
+docker-compose -f docker-compose.yml -f docker-compose.backend.yml --profile backend down 2>/dev/null || true
+
+# Build and start
+echo "Building backend container..."
 docker-compose -f docker-compose.yml -f docker-compose.backend.yml --profile backend build server
+
+echo "Starting backend container..."
 docker-compose -f docker-compose.yml -f docker-compose.backend.yml --profile backend up -d server
 
-# Wait for service to start
 echo "Waiting for backend to start..."
 sleep 10
 
-# Enable and start systemd service
+# Enable and restart systemd service
 sudo systemctl daemon-reload
-sudo systemctl enable $APP_NAME-backend
-sudo systemctl start $APP_NAME-backend
+sudo systemctl enable resumepro-backend 2>/dev/null || true
+sudo systemctl restart resumepro-backend 2>/dev/null || true
 
 echo ""
 echo "================================"
-echo "Deployment Status"
+echo "✅ Deployment Complete!"
 echo "================================"
-docker ps | grep resumepro
-echo ""
+docker ps | grep resumepro || echo "⚠️  No resumepro containers running"
 
 # Test backend
-echo "Testing backend..."
-sleep 3
-curl -I http://localhost:5000/health || echo "Health check endpoint may not exist yet"
-
-# Setup SSL
 echo ""
-echo "================================"
-read -p "Setup SSL certificate now? (y/n): " SETUP_SSL
-if [ "$SETUP_SSL" = "y" ]; then
-    read -p "Enter email for Let's Encrypt: " EMAIL
-    sudo certbot --nginx -d $API_DOMAIN --non-interactive --agree-tos -m "$EMAIL" --redirect
-    echo "SSL certificate installed successfully"
+echo "Testing backend..."
+if curl -s -f -m 5 http://localhost:5000/health > /dev/null 2>&1; then
+    echo "✅ Backend health check passed"
+else
+    echo "⚠️  Health check failed (may not have /health endpoint)"
 fi
 
-# Get server IP
-SERVER_IP=$(curl -s http://checkip.amazonaws.com)
+SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "unknown")
 
 echo ""
-echo "================================"
-echo "Backend Deployment Complete!"
-echo "================================"
-echo "Backend API: https://$API_DOMAIN"
+echo "Backend API: https://api.resume.anshumansp.com"
 echo "Server IP: $SERVER_IP"
-echo "Test with: curl http://$SERVER_IP:5000/health (before SSL)"
-echo "Test with: curl https://$API_DOMAIN/health (after SSL)"
 echo ""
-echo "Update Vercel frontend environment variables:"
-echo "  NEXT_PUBLIC_SERVER_URL=https://$API_DOMAIN"
+echo "📝 Update Vercel with:"
+echo "   NEXT_PUBLIC_SERVER_URL=https://api.resume.anshumansp.com"
 echo ""
-echo "Useful commands:"
-echo "  View logs: sudo journalctl -u $APP_NAME-backend -f"
-echo "  Docker logs: docker logs resumepro-server -f"
-echo "  Restart: sudo systemctl restart $APP_NAME-backend"
-echo "  Status: sudo systemctl status $APP_NAME-backend"
+echo "📊 Monitor with:"
+echo "   docker logs resumepro-server -f"
+echo "   sudo journalctl -u resumepro-backend -f"
 echo ""
