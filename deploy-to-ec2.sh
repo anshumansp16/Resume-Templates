@@ -62,7 +62,7 @@ echo "📍 Connected to ResumePro EC2"
 echo ""
 
 # Navigate to project
-cd ~/resumepro || { echo "❌ Project directory not found"; exit 1; }
+cd ~/Resume-Templates || { echo "❌ Project directory not found"; exit 1; }
 
 echo "📥 Pulling latest changes..."
 git pull
