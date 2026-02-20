@@ -54,8 +54,14 @@ if [ ! -f "$PROJECT_ROOT/.env.production" ]; then
     echo "  - EMAIL_PASSWORD=your_app_password"
     echo "  - GROQ_API_KEY=gsk_xxxxx"
     echo ""
-    read -p "Press Enter to edit .env.production now..."
-    nano "$PROJECT_ROOT/.env.production"
+    if [ -t 0 ]; then
+        read -p "Press Enter to edit .env.production now..."
+        nano "$PROJECT_ROOT/.env.production"
+    else
+        echo "⚠️  Non-interactive mode: Please edit .env.production manually"
+        echo "   Then re-run: bash server/deploy-resumepro-backend.sh"
+        exit 1
+    fi
 fi
 
 # Create backend-only docker-compose override
@@ -134,11 +140,16 @@ EOF
     sudo ln -sf /etc/nginx/sites-available/resumepro-api /etc/nginx/sites-enabled/
     sudo nginx -t && sudo systemctl reload nginx
 
-    echo ""
-    read -p "Setup SSL certificate now? (y/n): " SETUP_SSL
-    if [ "$SETUP_SSL" = "y" ]; then
-        read -p "Enter email for Let's Encrypt: " EMAIL
-        sudo certbot --nginx -d api.resume.anshumansp.com --non-interactive --agree-tos -m "$EMAIL" --redirect || echo "⚠️  SSL setup failed, continuing..."
+    if [ -t 0 ]; then
+        echo ""
+        read -p "Setup SSL certificate now? (y/n): " SETUP_SSL
+        if [ "$SETUP_SSL" = "y" ]; then
+            read -p "Enter email for Let's Encrypt: " EMAIL
+            sudo certbot --nginx -d api.resume.anshumansp.com --non-interactive --agree-tos -m "$EMAIL" --redirect || echo "⚠️  SSL setup failed, continuing..."
+        fi
+    else
+        echo "⚠️  SSL not configured (non-interactive mode)"
+        echo "   Run manually: sudo certbot --nginx -d api.resume.anshumansp.com"
     fi
 fi
 
